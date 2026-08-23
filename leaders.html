@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club Leadership — Chess Club</title>
+  <meta name="description" content="Meet the executive team behind the University Chess Club — President, Vice President, Sports Lead, and Events Coordinator." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease-out, transform 0.7s ease-out; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .nav-link::after {
+      content: ''; display: block; width: 0; height: 2px;
+      background: #fff; transition: width 0.3s ease;
+    }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+  </style>
+</head>
+<body class="bg-black text-white font-sans antialiased">
+
+  <!-- ============ HEADER ============ -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-neutral-800/60">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 group">
+        <img src="sports club transparent.png" alt="Sports Club Logo" class="h-9 w-auto transition-transform group-hover:scale-105" />
+      </a>
+      <nav class="hidden md:flex items-center gap-8">
+        <a href="index.html" class="nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5">Home</a>
+        <a href="events.html" class="nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5">Events</a>
+        <a href="leaders.html" class="nav-link active text-sm font-medium tracking-wide uppercase pb-0.5">Leaders</a>
+        <a href="join.html" class="nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5">Join</a>
+      </nav>
+      <!-- University Logo -->
+      <div class="hidden md:flex items-center justify-center h-10" title="Adamas University">
+        <img src="au_logo.png" alt="Adamas University Logo" class="h-10 w-auto object-contain" />
+      </div>
+      <button id="menuBtn" class="md:hidden flex flex-col gap-1.5 p-2" aria-label="Toggle navigation">
+        <span class="block w-6 h-0.5 bg-white transition-all" id="bar1"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all" id="bar2"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all" id="bar3"></span>
+      </button>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden border-t border-neutral-800/60 bg-black/95 backdrop-blur-md">
+      <nav class="flex flex-col px-6 py-4 gap-4">
+        <a href="index.html" class="text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors">Home</a>
+        <a href="events.html" class="text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors">Events</a>
+        <a href="leaders.html" class="text-sm font-medium tracking-wide uppercase text-white">Leaders</a>
+        <a href="join.html" class="text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors">Join</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ PAGE CONTENT ============ -->
+  <main class="pt-28 pb-20 px-6">
+    <div class="max-w-4xl mx-auto">
+
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <h1 class="text-4xl md:text-5xl font-black tracking-[0.15em] uppercase mb-4">Club Leadership</h1>
+        <div class="w-16 h-px bg-neutral-700 mx-auto mb-6"></div>
+        <p class="text-neutral-400 text-lg max-w-xl mx-auto">The minds driving our strategy — on and off the board.</p>
+      </div>
+
+      <!-- Leadership Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- President -->
+        <article class="group bg-neutral-900 border border-neutral-800 rounded-xl p-8 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 reveal">
+          <div class="flex items-start gap-5">
+            <!-- Avatar / Chess Piece -->
+            <div class="shrink-0 w-16 h-16 bg-white/5 border border-neutral-700 rounded-xl flex items-center justify-center">
+              <span class="text-3xl">♚</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="block text-xs text-neutral-500 tracking-[0.2em] uppercase font-semibold mb-1">President</span>
+              <h2 class="text-xl font-bold mb-3">Anubhab Roy</h2>
+              <div class="flex flex-wrap gap-3">
+
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono bg-white/5 border border-neutral-700 rounded-md px-3 py-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                  Chess.com 1277
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Vice President -->
+        <article class="group bg-neutral-900 border border-neutral-800 rounded-xl p-8 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 reveal">
+          <div class="flex items-start gap-5">
+            <div class="shrink-0 w-16 h-16 bg-white/5 border border-neutral-700 rounded-xl flex items-center justify-center">
+              <span class="text-3xl">♛</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="block text-xs text-neutral-500 tracking-[0.2em] uppercase font-semibold mb-1">Chess Lead</span>
+              <h2 class="text-xl font-bold mb-3">Aniket Gupta</h2>
+              <div class="flex flex-wrap gap-3">
+
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono bg-white/5 border border-neutral-700 rounded-md px-3 py-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                  Chess.com 1543
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Sports Lead -->
+        <article class="group bg-neutral-900 border border-neutral-800 rounded-xl p-8 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 reveal">
+          <div class="flex items-start gap-5">
+            <div class="shrink-0 w-16 h-16 bg-white/5 border border-neutral-700 rounded-xl flex items-center justify-center">
+              <span class="text-3xl">♜</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="block text-xs text-neutral-500 tracking-[0.2em] uppercase font-semibold mb-1">Chess Lead</span>
+              <h2 class="text-xl font-bold mb-3">Aditya Pal</h2>
+              <div class="flex flex-wrap gap-3">
+
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono bg-white/5 border border-neutral-700 rounded-md px-3 py-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                  Chess.com 1100
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Events Coordinator -->
+        <article class="group bg-neutral-900 border border-neutral-800 rounded-xl p-8 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 reveal">
+          <div class="flex items-start gap-5">
+            <div class="shrink-0 w-16 h-16 bg-white/5 border border-neutral-700 rounded-xl flex items-center justify-center">
+              <span class="text-3xl">♝</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="block text-xs text-neutral-500 tracking-[0.2em] uppercase font-semibold mb-1">Chess Coordinator</span>
+              <h2 class="text-xl font-bold mb-3">Subrat Samal</h2>
+              <div class="flex flex-wrap gap-3">
+
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono bg-white/5 border border-neutral-700 rounded-md px-3 py-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                  Chess.com 1200
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-neutral-800/60 py-10 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <p class="text-neutral-500 text-sm">&copy; 2026 Chess Club &mdash; All rights reserved.</p>
+      <div class="flex items-center gap-5">
+        <a href="#" class="text-neutral-500 hover:text-white transition-colors" aria-label="GitHub">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="#" class="text-neutral-500 hover:text-white transition-colors" aria-label="Instagram">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="mailto:chess@university.edu" class="text-neutral-500 hover:text-white transition-colors" aria-label="Email">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ JS ============ -->
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const bar1 = document.getElementById('bar1');
+    const bar2 = document.getElementById('bar2');
+    const bar3 = document.getElementById('bar3');
+    let menuOpen = false;
+    menuBtn.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('hidden');
+      bar1.style.transform = menuOpen ? 'rotate(45deg) translate(4px, 4px)' : '';
+      bar2.style.opacity = menuOpen ? '0' : '1';
+      bar3.style.transform = menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : '';
+    });
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
