@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Join — Chess Club</title>
-  <meta name="description" content="Register as a member of the University Chess Club. Paste your Google Form or Tally.so embed to start collecting signups." />
+  <meta name="description" content="Register as a member of the Brillianté Chess Club at Adamas University." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -26,13 +26,57 @@
       background: #fff; transition: width 0.3s ease;
     }
     .nav-link:hover::after, .nav-link.active::after { width: 100%; }
-    /* Animated dashed border */
-    @keyframes dash-march {
-      to { stroke-dashoffset: -20; }
+
+    /* Input focus glow */
+    .chess-input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      width: 100%;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
     }
-    .dash-animated rect {
-      animation: dash-march 1.2s linear infinite;
+    .chess-input:focus {
+      border-color: rgba(255,255,255,0.4);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
     }
+    .chess-input::placeholder { color: #525252; }
+    .chess-input.error { border-color: rgba(239,68,68,0.6); }
+
+    /* Button states */
+    .btn-primary {
+      background: #fff; color: #000;
+      font-weight: 600; font-size: 14px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 13px 28px; border-radius: 10px;
+      width: 100%; cursor: pointer;
+      transition: background 0.2s, transform 0.15s, opacity 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { background: #e5e5e5; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.2); border-top-color: #000;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      z-index: 999; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.success { background: #1a2e1a; border: 1px solid rgba(74,222,128,0.3); color: #4ade80; }
+    #toast.error   { background: #2e1a1a; border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
   </style>
 </head>
 <body class="bg-black text-white font-sans antialiased">
@@ -49,7 +93,6 @@
         <a href="leaders.html" class="nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5">Leaders</a>
         <a href="join.html" class="nav-link active text-sm font-medium tracking-wide uppercase pb-0.5">Join</a>
       </nav>
-      <!-- University Logo -->
       <div class="hidden md:flex items-center justify-center h-10" title="Adamas University">
         <img src="au_logo.png" alt="Adamas University Logo" class="h-10 w-auto object-contain" />
       </div>
@@ -71,75 +114,118 @@
 
   <!-- ============ PAGE CONTENT ============ -->
   <main class="pt-28 pb-20 px-6">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-lg mx-auto">
 
       <!-- Section Header -->
       <div class="text-center mb-12 reveal">
         <h1 class="text-4xl md:text-5xl font-black tracking-[0.15em] uppercase mb-4">Join the Club</h1>
         <div class="w-16 h-px bg-neutral-700 mx-auto mb-6"></div>
         <p class="text-neutral-400 text-lg max-w-xl mx-auto">
-          Whether you're a complete beginner or a seasoned competitor, there's a seat at our board for you.
-          Fill in the registration form below to become a member.
+          Whether you're a beginner or a seasoned competitor — there's a seat at our board for you.
         </p>
       </div>
 
-      <!-- Info cards row -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5 text-center reveal">
+      <!-- Info cards -->
+      <div class="grid grid-cols-3 gap-3 mb-10">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center reveal">
           <span class="block text-2xl mb-2">🆓</span>
-          <span class="text-sm font-semibold">Free Membership</span>
+          <span class="text-xs font-semibold">Free Membership</span>
           <p class="text-xs text-neutral-500 mt-1">No fees, ever</p>
         </div>
-        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5 text-center reveal">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center reveal">
           <span class="block text-2xl mb-2">🏅</span>
-          <span class="text-sm font-semibold">All Skill Levels</span>
+          <span class="text-xs font-semibold">All Skill Levels</span>
           <p class="text-xs text-neutral-500 mt-1">Beginners welcome</p>
         </div>
-        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-5 text-center reveal">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center reveal">
           <span class="block text-2xl mb-2">📧</span>
-          <span class="text-sm font-semibold">Instant Access</span>
-          <p class="text-xs text-neutral-500 mt-1">Join our WhatsApp &amp; Discord</p>
+          <span class="text-xs font-semibold">Instant Access</span>
+          <p class="text-xs text-neutral-500 mt-1">Join our community</p>
         </div>
       </div>
 
-      <!-- Registration Form Placeholder -->
-      <div class="reveal">
-        <div
-          id="registration-form-container"
-          class="relative min-h-[450px] border-2 border-dashed border-neutral-700 rounded-2xl flex flex-col items-center justify-center p-8 bg-neutral-900/30 hover:border-neutral-500 transition-colors duration-300"
-        >
-          <!-- Animated dashed border overlay (SVG) -->
-          <svg class="dash-animated absolute inset-0 w-full h-full pointer-events-none rounded-2xl" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="16" ry="16"
-                  fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"
-                  stroke-dasharray="10 10"/>
-          </svg>
+      <!-- ── Forms Panel ── -->
+      <div id="form-panel" class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 reveal">
+        <!-- Tabs -->
+        <div class="flex gap-6 mb-8 border-b border-neutral-800 pb-2">
+          <button id="tab-register" class="text-white font-bold uppercase tracking-wider text-sm border-b-2 border-white pb-2 transition-colors">Register</button>
+          <button id="tab-login" class="text-neutral-500 hover:text-white font-bold uppercase tracking-wider text-sm pb-2 transition-colors">Log In</button>
+        </div>
 
-          <!-- Placeholder content -->
-          <div class="text-center relative z-10">
-            <div class="w-16 h-16 mx-auto mb-5 border border-neutral-700 rounded-2xl flex items-center justify-center bg-neutral-900">
-              <svg class="w-7 h-7 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-bold mb-2 text-neutral-300">Registration Form Embed</h3>
-            <p class="text-sm text-neutral-500 max-w-sm leading-relaxed">
-              Paste your <span class="text-neutral-300 font-medium">Google Form</span> or
-              <span class="text-neutral-300 font-medium">Tally.so</span> iframe code
-              into this container to start collecting member registrations.
-            </p>
-            <div class="mt-5 inline-flex items-center gap-2 text-xs font-mono text-neutral-600 bg-neutral-900 border border-neutral-800 rounded-lg px-4 py-2">
-              &lt;iframe src="..."&gt;&lt;/iframe&gt;
-            </div>
+        <h2 class="text-xl font-bold mb-6" id="form-title">Create Your Account</h2>
+
+        <!-- Register Form -->
+        <form id="register-form" novalidate>
+          <div class="mb-4">
+            <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-2" for="reg-email">
+              Email Address <span class="text-red-500">*</span>
+            </label>
+            <input id="reg-email" type="email" autocomplete="email"
+                   class="chess-input" placeholder="you@university.edu" required />
+            <p class="text-xs text-red-400 mt-1 hidden" id="reg-email-err"></p>
           </div>
+          <div class="mb-4">
+            <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-2" for="reg-password">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input id="reg-password" type="password" autocomplete="new-password"
+                     class="chess-input pr-10" placeholder="Min. 8 characters" required />
+              <button type="button" class="toggle-pw absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors text-xs">
+                Show
+              </button>
+            </div>
+            <p class="text-xs text-red-400 mt-1 hidden" id="reg-password-err"></p>
+          </div>
+          <div class="mb-6">
+            <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-2" for="chesscom">
+              Chess.com Username <span class="text-neutral-600">(optional)</span>
+            </label>
+            <input id="chesscom" type="text" autocomplete="username"
+                   class="chess-input" placeholder="your_chess_handle" />
+            <p class="text-xs text-neutral-600 mt-1">We'll fetch your live rating automatically.</p>
+          </div>
+          <button type="submit" class="btn-primary" id="reg-submit-btn">
+            Register as Member
+          </button>
+        </form>
 
-          <!-- HTML comment for developers -->
-          <!-- ============================================================ -->
-          <!-- Replace this entire placeholder content with your <iframe>   -->
-          <!-- Example:                                                      -->
-          <!-- <iframe src="https://tally.so/embed/YOUR_FORM_ID"            -->
-          <!--   width="100%" height="500" frameborder="0"></iframe>         -->
-          <!-- ============================================================ -->
+        <!-- Login Form -->
+        <form id="login-form" class="hidden" novalidate>
+          <div class="mb-4">
+            <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-2" for="log-email">
+              Email Address <span class="text-red-500">*</span>
+            </label>
+            <input id="log-email" type="email" autocomplete="email"
+                   class="chess-input" placeholder="you@university.edu" required />
+            <p class="text-xs text-red-400 mt-1 hidden" id="log-email-err"></p>
+          </div>
+          <div class="mb-6">
+            <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-2" for="log-password">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input id="log-password" type="password" autocomplete="current-password"
+                     class="chess-input pr-10" placeholder="Your password" required />
+              <button type="button" class="toggle-pw absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors text-xs">
+                Show
+              </button>
+            </div>
+            <p class="text-xs text-red-400 mt-1 hidden" id="log-password-err"></p>
+          </div>
+          <button type="submit" class="btn-primary" id="log-submit-btn">
+            Log In
+          </button>
+        </form>
+
+        <!-- Success state (hidden by default) -->
+        <div id="success-panel" class="hidden text-center py-4">
+          <div class="text-5xl mb-4">♚</div>
+          <h3 class="text-xl font-bold mb-2">Welcome to the Club!</h3>
+          <p class="text-neutral-400 text-sm mb-6">You have successfully authenticated. You can now view the leaderboard and upcoming events.</p>
+          <a href="leaders.html" class="inline-flex items-center gap-2 text-sm font-medium border border-neutral-700 rounded-lg px-5 py-2.5 hover:bg-white hover:text-black transition-all">
+            View Leaderboard
+          </a>
         </div>
       </div>
 
@@ -151,10 +237,10 @@
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
       <p class="text-neutral-500 text-sm">&copy; 2026 Chess Club &mdash; All rights reserved.</p>
       <div class="flex items-center gap-5">
-        <a href="#" class="text-neutral-500 hover:text-white transition-colors" aria-label="GitHub">
+        <a href="https://github.com/aniketgupta011" class="text-neutral-500 hover:text-white transition-colors" aria-label="GitHub">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         </a>
-        <a href="#" class="text-neutral-500 hover:text-white transition-colors" aria-label="Instagram">
+        <a href="https://www.instagram.com/adamasuniversity_sportsclub/" class="text-neutral-500 hover:text-white transition-colors" aria-label="Instagram">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
         </a>
         <a href="mailto:chess@university.edu" class="text-neutral-500 hover:text-white transition-colors" aria-label="Email">
@@ -164,8 +250,15 @@
     </div>
   </footer>
 
+  <!-- Toast notification -->
+  <div id="toast" role="alert" aria-live="polite"></div>
+
   <!-- ============ JS ============ -->
   <script>
+    // ── Config ────────────────────────────────────────────────────────────────
+    const API_BASE = 'http://localhost:8000';
+
+    // ── Mobile menu ───────────────────────────────────────────────────────────
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     const bar1 = document.getElementById('bar1');
@@ -179,13 +272,134 @@
       bar2.style.opacity = menuOpen ? '0' : '1';
       bar3.style.transform = menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : '';
     });
-    const reveals = document.querySelectorAll('.reveal');
+
+    // ── Scroll-reveal ─────────────────────────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); }
-      });
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); observer.unobserve(e.target); } });
     }, { threshold: 0.15 });
-    reveals.forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    const tabReg = document.getElementById('tab-register');
+    const tabLog = document.getElementById('tab-login');
+    const formReg = document.getElementById('register-form');
+    const formLog = document.getElementById('login-form');
+    const formTitle = document.getElementById('form-title');
+
+    function switchTab(isLogin) {
+      if (isLogin) {
+        tabLog.classList.replace('text-neutral-500', 'text-white');
+        tabLog.classList.add('border-b-2', 'border-white');
+        tabReg.classList.replace('text-white', 'text-neutral-500');
+        tabReg.classList.remove('border-b-2', 'border-white');
+        formReg.classList.add('hidden');
+        formLog.classList.remove('hidden');
+        formTitle.textContent = 'Welcome Back';
+      } else {
+        tabReg.classList.replace('text-neutral-500', 'text-white');
+        tabReg.classList.add('border-b-2', 'border-white');
+        tabLog.classList.replace('text-white', 'text-neutral-500');
+        tabLog.classList.remove('border-b-2', 'border-white');
+        formLog.classList.add('hidden');
+        formReg.classList.remove('hidden');
+        formTitle.textContent = 'Create Your Account';
+      }
+    }
+    tabReg.addEventListener('click', () => switchTab(false));
+    tabLog.addEventListener('click', () => switchTab(true));
+
+    // ── Password toggle ───────────────────────────────────────────────────────
+    document.querySelectorAll('.toggle-pw').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const input = e.target.previousElementSibling;
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        e.target.textContent = isText ? 'Show' : 'Hide';
+      });
+    });
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `show ${type}`;
+      setTimeout(() => { t.className = type; }, 3500);
+    }
+
+    // ── Form validation ───────────────────────────────────────────────────────
+    function showErr(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function clearErr(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // ── Registration submit ───────────────────────────────────────────────────
+    formReg.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const chesscom = document.getElementById('chesscom').value.trim() || null;
+      const submitBtn = document.getElementById('reg-submit-btn');
+
+      let valid = true;
+      clearErr('reg-email-err');
+      clearErr('reg-password-err');
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showErr('reg-email-err', 'Please enter a valid email address.');
+        document.getElementById('reg-email').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('reg-email').classList.remove('error');
+      }
+
+      if (password.length < 8) {
+        showErr('reg-password-err', 'Password must be at least 8 characters.');
+        document.getElementById('reg-password').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('reg-password').classList.remove('error');
+      }
+
+      if (!valid) return;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span>Creating account…';
+
+      try {
+        const res = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, chesscom_username: chesscom }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          formReg.classList.add('hidden');
+          document.getElementById('success-panel').classList.remove('hidden');
+          document.querySelector('.flex.gap-6.mb-8').classList.add('hidden'); // Hide tabs
+          formTitle.classList.add('hidden');
+          showToast('Account created! Welcome to Brillianté.');
+        } else if (res.status === 409) {
+          showErr('reg-email-err', 'An account with this email already exists.');
+          document.getElementById('reg-email').classList.add('error');
+        } else {
+          const detail = data.detail || 'Registration failed. Please try again.';
+          showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+        }
+
+      } catch (err) {
+        showToast('Could not reach the server. Is the backend running?', 'error');
+        console.error('Register error:', err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register as Member';
+      }
+    });
   </script>
 </body>
 </html>
