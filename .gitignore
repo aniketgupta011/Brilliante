@@ -1,3 +1,5 @@
 remove_bg_v2.py
 inspect_bg.py
 remove_bg.py
+.env
+.env.example
