@@ -152,6 +152,49 @@
     // ── Config ────────────────────────────────────────────────────────────────
     const API_BASE = 'https://brilliante.onrender.com';
 
+    // ── Auth helpers ─────────────────────────────────────────────────────────
+    function getAuth() {
+      try {
+        const raw = localStorage.getItem('brilliante_auth');
+        if (!raw) return null;
+        const auth = JSON.parse(raw);
+        if (auth.token) {
+          const payload = JSON.parse(atob(auth.token.split('.')[1]));
+          if (payload.exp * 1000 < Date.now()) {
+            localStorage.removeItem('brilliante_auth');
+            return null;
+          }
+        }
+        return auth;
+      } catch { return null; }
+    }
+
+    function logout() {
+      localStorage.removeItem('brilliante_auth');
+      window.location.reload();
+    }
+
+    function updateNavForAuth() {
+      const auth = getAuth();
+      if (!auth) return;
+
+      document.querySelectorAll('nav.hidden.md\\:flex a[href="join.html"]').forEach(el => {
+        const btn = document.createElement('button');
+        btn.textContent = 'Logout';
+        btn.className = 'nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5 bg-transparent border-none cursor-pointer';
+        btn.addEventListener('click', logout);
+        el.replaceWith(btn);
+      });
+
+      document.querySelectorAll('#mobileMenu a[href="join.html"]').forEach(el => {
+        const btn = document.createElement('button');
+        btn.textContent = 'Logout';
+        btn.className = 'text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-left';
+        btn.addEventListener('click', logout);
+        el.replaceWith(btn);
+      });
+    }
+
     // ── Mobile menu ───────────────────────────────────────────────────────────
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -172,6 +215,9 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); observer.unobserve(e.target); } });
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Apply auth state ──────────────────────────────────────────────────────
+    updateNavForAuth();
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     const ROLE_ICONS  = { president: '♚', admin: '♛', member: '♟' };

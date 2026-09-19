@@ -39,6 +39,22 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class RegisterResponse(BaseModel):
+    """Returned by POST /register — user profile + JWT so the client is
+    immediately authenticated without a second round-trip to /login."""
+    id: int
+    email: EmailStr
+    role: UserRole
+    chesscom_username: Optional[str]
+    blitz_rating: Optional[int]
+    rapid_rating: Optional[int]
+    created_at: datetime
+    access_token: str
+    token_type: str = "bearer"
+
+    model_config = {"from_attributes": True}
+
+
 # ── User ──────────────────────────────────────────────────────────────────────
 
 class UserPublicResponse(BaseModel):

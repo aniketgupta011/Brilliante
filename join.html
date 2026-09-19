@@ -258,6 +258,85 @@
     // ── Config ────────────────────────────────────────────────────────────────
     const API_BASE = 'https://brilliante.onrender.com';
 
+    // ── Auth helpers ─────────────────────────────────────────────────────────
+    function getAuth() {
+      try {
+        const raw = localStorage.getItem('brilliante_auth');
+        if (!raw) return null;
+        const auth = JSON.parse(raw);
+        // Basic JWT expiry check (JWT payload is base64url in part 1)
+        if (auth.token) {
+          const payload = JSON.parse(atob(auth.token.split('.')[1]));
+          if (payload.exp * 1000 < Date.now()) {
+            localStorage.removeItem('brilliante_auth');
+            return null;
+          }
+        }
+        return auth;
+      } catch { return null; }
+    }
+
+    function saveAuth(token, email, role) {
+      localStorage.setItem('brilliante_auth', JSON.stringify({ token, email, role }));
+    }
+
+    function logout() {
+      localStorage.removeItem('brilliante_auth');
+      window.location.reload();
+    }
+
+    // ── Auth-aware navigation ─────────────────────────────────────────────────
+    function updateNavForAuth() {
+      const auth = getAuth();
+      if (!auth) return;
+
+      // Desktop nav — replace "Join" link with "Logout" button
+      document.querySelectorAll('nav.hidden.md\\:flex a[href="join.html"]').forEach(el => {
+        const logoutLink = document.createElement('button');
+        logoutLink.textContent = 'Logout';
+        logoutLink.className = 'nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5 bg-transparent border-none cursor-pointer';
+        logoutLink.addEventListener('click', logout);
+        el.replaceWith(logoutLink);
+      });
+
+      // Mobile nav — replace "Join" link with "Logout" button
+      document.querySelectorAll('#mobileMenu a[href="join.html"]').forEach(el => {
+        const logoutLink = document.createElement('button');
+        logoutLink.textContent = 'Logout';
+        logoutLink.className = 'text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-left';
+        logoutLink.addEventListener('click', logout);
+        el.replaceWith(logoutLink);
+      });
+    }
+
+    // ── Show logged-in state on the join page ─────────────────────────────────
+    function showLoggedInState() {
+      const auth = getAuth();
+      if (!auth) return false;
+
+      // Hide the entire form panel content and show welcome-back
+      const formPanel = document.getElementById('form-panel');
+      if (formPanel) {
+        formPanel.innerHTML = `
+          <div class="text-center py-6">
+            <div class="text-5xl mb-4">♚</div>
+            <h3 class="text-xl font-bold mb-2">Welcome Back!</h3>
+            <p class="text-neutral-400 text-sm mb-2">Logged in as <span class="text-white font-medium">${auth.email}</span></p>
+            <p class="text-neutral-500 text-xs mb-6 uppercase tracking-widest">${auth.role}</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="leaders.html" class="inline-flex items-center justify-center gap-2 text-sm font-medium border border-neutral-700 rounded-lg px-5 py-2.5 hover:bg-white hover:text-black transition-all">
+                View Leaderboard
+              </a>
+              <button onclick="logout()" class="inline-flex items-center justify-center gap-2 text-sm font-medium border border-red-900/50 text-red-400 rounded-lg px-5 py-2.5 hover:bg-red-500/10 transition-all cursor-pointer bg-transparent">
+                Log Out
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      return true;
+    }
+
     // ── Mobile menu ───────────────────────────────────────────────────────────
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -279,127 +358,208 @@
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // ── Tabs ──────────────────────────────────────────────────────────────────
-    const tabReg = document.getElementById('tab-register');
-    const tabLog = document.getElementById('tab-login');
-    const formReg = document.getElementById('register-form');
-    const formLog = document.getElementById('login-form');
-    const formTitle = document.getElementById('form-title');
+    // ── Apply auth state to nav ───────────────────────────────────────────────
+    updateNavForAuth();
 
-    function switchTab(isLogin) {
-      if (isLogin) {
-        tabLog.classList.replace('text-neutral-500', 'text-white');
-        tabLog.classList.add('border-b-2', 'border-white');
-        tabReg.classList.replace('text-white', 'text-neutral-500');
-        tabReg.classList.remove('border-b-2', 'border-white');
-        formReg.classList.add('hidden');
-        formLog.classList.remove('hidden');
-        formTitle.textContent = 'Welcome Back';
-      } else {
-        tabReg.classList.replace('text-neutral-500', 'text-white');
-        tabReg.classList.add('border-b-2', 'border-white');
-        tabLog.classList.replace('text-white', 'text-neutral-500');
-        tabLog.classList.remove('border-b-2', 'border-white');
-        formLog.classList.add('hidden');
-        formReg.classList.remove('hidden');
-        formTitle.textContent = 'Create Your Account';
-      }
-    }
-    tabReg.addEventListener('click', () => switchTab(false));
-    tabLog.addEventListener('click', () => switchTab(true));
+    // ── If already logged in, show welcome state ──────────────────────────────
+    const alreadyLoggedIn = showLoggedInState();
 
-    // ── Password toggle ───────────────────────────────────────────────────────
-    document.querySelectorAll('.toggle-pw').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const input = e.target.previousElementSibling;
-        const isText = input.type === 'text';
-        input.type = isText ? 'password' : 'text';
-        e.target.textContent = isText ? 'Show' : 'Hide';
-      });
-    });
+    // ── Only attach form handlers if NOT logged in ────────────────────────────
+    if (!alreadyLoggedIn) {
 
-    // ── Toast ─────────────────────────────────────────────────────────────────
-    function showToast(msg, type = 'success') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = `show ${type}`;
-      setTimeout(() => { t.className = type; }, 3500);
-    }
+      // ── Tabs ──────────────────────────────────────────────────────────────────
+      const tabReg = document.getElementById('tab-register');
+      const tabLog = document.getElementById('tab-login');
+      const formReg = document.getElementById('register-form');
+      const formLog = document.getElementById('login-form');
+      const formTitle = document.getElementById('form-title');
 
-    // ── Form validation ───────────────────────────────────────────────────────
-    function showErr(id, msg) {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.classList.remove('hidden');
-    }
-    function clearErr(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
-
-    // ── Registration submit ───────────────────────────────────────────────────
-    formReg.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-      const chesscom = document.getElementById('chesscom').value.trim() || null;
-      const submitBtn = document.getElementById('reg-submit-btn');
-
-      let valid = true;
-      clearErr('reg-email-err');
-      clearErr('reg-password-err');
-
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showErr('reg-email-err', 'Please enter a valid email address.');
-        document.getElementById('reg-email').classList.add('error');
-        valid = false;
-      } else {
-        document.getElementById('reg-email').classList.remove('error');
-      }
-
-      if (password.length < 8) {
-        showErr('reg-password-err', 'Password must be at least 8 characters.');
-        document.getElementById('reg-password').classList.add('error');
-        valid = false;
-      } else {
-        document.getElementById('reg-password').classList.remove('error');
-      }
-
-      if (!valid) return;
-
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span>Creating account…';
-
-      try {
-        const res = await fetch(`${API_BASE}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, chesscom_username: chesscom }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
+      function switchTab(isLogin) {
+        if (isLogin) {
+          tabLog.classList.replace('text-neutral-500', 'text-white');
+          tabLog.classList.add('border-b-2', 'border-white');
+          tabReg.classList.replace('text-white', 'text-neutral-500');
+          tabReg.classList.remove('border-b-2', 'border-white');
           formReg.classList.add('hidden');
-          document.getElementById('success-panel').classList.remove('hidden');
-          document.querySelector('.flex.gap-6.mb-8').classList.add('hidden'); // Hide tabs
-          formTitle.classList.add('hidden');
-          showToast('Account created! Welcome to Brillianté.');
-        } else if (res.status === 409) {
-          showErr('reg-email-err', 'An account with this email already exists.');
-          document.getElementById('reg-email').classList.add('error');
+          formLog.classList.remove('hidden');
+          formTitle.textContent = 'Welcome Back';
         } else {
-          const detail = data.detail || 'Registration failed. Please try again.';
-          showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+          tabReg.classList.replace('text-neutral-500', 'text-white');
+          tabReg.classList.add('border-b-2', 'border-white');
+          tabLog.classList.replace('text-white', 'text-neutral-500');
+          tabLog.classList.remove('border-b-2', 'border-white');
+          formLog.classList.add('hidden');
+          formReg.classList.remove('hidden');
+          formTitle.textContent = 'Create Your Account';
+        }
+      }
+      tabReg.addEventListener('click', () => switchTab(false));
+      tabLog.addEventListener('click', () => switchTab(true));
+
+      // ── Password toggle ───────────────────────────────────────────────────────
+      document.querySelectorAll('.toggle-pw').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const input = e.target.previousElementSibling;
+          const isText = input.type === 'text';
+          input.type = isText ? 'password' : 'text';
+          e.target.textContent = isText ? 'Show' : 'Hide';
+        });
+      });
+
+      // ── Toast ─────────────────────────────────────────────────────────────────
+      function showToast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `show ${type}`;
+        setTimeout(() => { t.className = type; }, 3500);
+      }
+
+      // ── Form validation ───────────────────────────────────────────────────────
+      function showErr(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.classList.remove('hidden');
+      }
+      function clearErr(id) {
+        document.getElementById(id).classList.add('hidden');
+      }
+
+      // ── Registration submit ───────────────────────────────────────────────────
+      formReg.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const chesscom = document.getElementById('chesscom').value.trim() || null;
+        const submitBtn = document.getElementById('reg-submit-btn');
+
+        let valid = true;
+        clearErr('reg-email-err');
+        clearErr('reg-password-err');
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showErr('reg-email-err', 'Please enter a valid email address.');
+          document.getElementById('reg-email').classList.add('error');
+          valid = false;
+        } else {
+          document.getElementById('reg-email').classList.remove('error');
         }
 
-      } catch (err) {
-        showToast('Could not reach the server. Is the backend running?', 'error');
-        console.error('Register error:', err);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Register as Member';
-      }
-    });
+        if (password.length < 8) {
+          showErr('reg-password-err', 'Password must be at least 8 characters.');
+          document.getElementById('reg-password').classList.add('error');
+          valid = false;
+        } else {
+          document.getElementById('reg-password').classList.remove('error');
+        }
+
+        if (!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span>Creating account…';
+
+        try {
+          const res = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, chesscom_username: chesscom }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // Backend now returns access_token alongside user data
+            saveAuth(data.access_token, data.email, data.role);
+            showToast('Account created! Welcome to Brillianté.');
+
+            // Show logged-in state
+            setTimeout(() => {
+              showLoggedInState();
+              updateNavForAuth();
+            }, 500);
+          } else if (res.status === 409) {
+            showErr('reg-email-err', 'An account with this email already exists.');
+            document.getElementById('reg-email').classList.add('error');
+          } else {
+            const detail = data.detail || 'Registration failed. Please try again.';
+            showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+          }
+
+        } catch (err) {
+          showToast('Could not reach the server. Is the backend running?', 'error');
+          console.error('Register error:', err);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Register as Member';
+        }
+      });
+
+      // ── Login submit ────────────────────────────────────────────────────────
+      formLog.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('log-email').value.trim();
+        const password = document.getElementById('log-password').value;
+        const submitBtn = document.getElementById('log-submit-btn');
+
+        let valid = true;
+        clearErr('log-email-err');
+        clearErr('log-password-err');
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showErr('log-email-err', 'Please enter a valid email address.');
+          document.getElementById('log-email').classList.add('error');
+          valid = false;
+        } else {
+          document.getElementById('log-email').classList.remove('error');
+        }
+
+        if (!password) {
+          showErr('log-password-err', 'Please enter your password.');
+          document.getElementById('log-password').classList.add('error');
+          valid = false;
+        } else {
+          document.getElementById('log-password').classList.remove('error');
+        }
+
+        if (!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span>Logging in…';
+
+        try {
+          const res = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // Decode the JWT to extract role
+            const payload = JSON.parse(atob(data.access_token.split('.')[1]));
+            saveAuth(data.access_token, payload.sub, payload.role);
+            showToast('Welcome back!');
+
+            // Show logged-in state
+            setTimeout(() => {
+              showLoggedInState();
+              updateNavForAuth();
+            }, 500);
+          } else {
+            const detail = data.detail || 'Login failed. Please check your credentials.';
+            showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+          }
+
+        } catch (err) {
+          showToast('Could not reach the server. Is the backend running?', 'error');
+          console.error('Login error:', err);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Log In';
+        }
+      });
+
+    } // end if (!alreadyLoggedIn)
   </script>
 </body>
 </html>

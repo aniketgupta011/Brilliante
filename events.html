@@ -41,6 +41,44 @@
     /* Event badge colours */
     .badge-ongoing  { background: rgba(34,197,94,0.12); color: #4ade80; border-color: rgba(74,222,128,0.3); }
     .badge-upcoming { background: rgba(59,130,246,0.12); color: #60a5fa; border-color: rgba(96,165,250,0.3); }
+
+    /* Admin panel inputs */
+    .admin-input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      font-size: 13px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .admin-input:focus {
+      border-color: rgba(255,255,255,0.4);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+    }
+    .admin-input::placeholder { color: #525252; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      z-index: 999; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.success { background: #1a2e1a; border: 1px solid rgba(74,222,128,0.3); color: #4ade80; }
+    #toast.error   { background: #2e1a1a; border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.2); border-top-color: #000;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans antialiased">
@@ -85,6 +123,62 @@
         <h1 class="text-4xl md:text-5xl font-black tracking-[0.15em] uppercase mb-4">Upcoming Events</h1>
         <div class="w-16 h-px bg-neutral-700 mx-auto mb-6"></div>
         <p class="text-neutral-400 text-lg max-w-xl mx-auto">Fixtures, tournaments, and workshops on the calendar. Don't miss a move.</p>
+      </div>
+
+      <!-- ─── ADMIN PANEL (hidden by default, shown for admin/president) ─── -->
+      <div id="admin-panel" class="hidden mb-12">
+        <div class="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 md:p-8 reveal">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">♛</span>
+            <h2 class="text-lg font-bold uppercase tracking-wider">Admin Panel</h2>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Add Event Form -->
+            <div class="bg-black/40 border border-neutral-800 rounded-xl p-5">
+              <h3 class="text-sm font-bold uppercase tracking-widest text-neutral-400 mb-4">Add Event</h3>
+              <form id="add-event-form" class="space-y-3">
+                <div>
+                  <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-1">Title <span class="text-red-500">*</span></label>
+                  <input type="text" id="event-title" class="admin-input" placeholder="e.g. Blitz Tournament #3" required />
+                </div>
+                <div>
+                  <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-1">Description</label>
+                  <textarea id="event-desc" class="admin-input" rows="2" placeholder="Optional description..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-1">Start Date & Time <span class="text-red-500">*</span></label>
+                  <input type="datetime-local" id="event-start" class="admin-input" required />
+                </div>
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" id="event-ongoing" class="w-4 h-4 accent-white" />
+                  <label for="event-ongoing" class="text-xs text-neutral-400 uppercase tracking-widest">Mark as Live / Ongoing</label>
+                </div>
+                <button type="submit" id="event-submit-btn" class="w-full bg-white text-black font-semibold text-xs tracking-wider uppercase py-2.5 rounded-lg hover:bg-neutral-200 transition-all cursor-pointer">
+                  Create Event
+                </button>
+              </form>
+            </div>
+
+            <!-- Add YouTube Stream Form -->
+            <div class="bg-black/40 border border-neutral-800 rounded-xl p-5">
+              <h3 class="text-sm font-bold uppercase tracking-widest text-neutral-400 mb-4">Add YouTube Stream</h3>
+              <form id="add-stream-form" class="space-y-3">
+                <div>
+                  <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-1">Title <span class="text-red-500">*</span></label>
+                  <input type="text" id="stream-title" class="admin-input" placeholder="e.g. Club Finals Live" required />
+                </div>
+                <div>
+                  <label class="block text-xs text-neutral-500 uppercase tracking-widest mb-1">YouTube URL <span class="text-red-500">*</span></label>
+                  <input type="url" id="stream-url" class="admin-input" placeholder="https://youtube.com/watch?v=..." required />
+                </div>
+                <button type="submit" id="stream-submit-btn" class="w-full bg-white text-black font-semibold text-xs tracking-wider uppercase py-2.5 rounded-lg hover:bg-neutral-200 transition-all cursor-pointer">
+                  Add Stream
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Events Grid — populated by JS -->
@@ -133,10 +227,69 @@
     </div>
   </footer>
 
+  <!-- Toast notification -->
+  <div id="toast" role="alert" aria-live="polite"></div>
+
   <!-- ============ JS ============ -->
   <script>
     // ── Config ────────────────────────────────────────────────────────────────
     const API_BASE = 'https://brilliante.onrender.com';
+
+    // ── Auth helpers ─────────────────────────────────────────────────────────
+    function getAuth() {
+      try {
+        const raw = localStorage.getItem('brilliante_auth');
+        if (!raw) return null;
+        const auth = JSON.parse(raw);
+        if (auth.token) {
+          const payload = JSON.parse(atob(auth.token.split('.')[1]));
+          if (payload.exp * 1000 < Date.now()) {
+            localStorage.removeItem('brilliante_auth');
+            return null;
+          }
+        }
+        return auth;
+      } catch { return null; }
+    }
+
+    function logout() {
+      localStorage.removeItem('brilliante_auth');
+      window.location.reload();
+    }
+
+    function isAdmin() {
+      const auth = getAuth();
+      return auth && (auth.role === 'admin' || auth.role === 'president');
+    }
+
+    function updateNavForAuth() {
+      const auth = getAuth();
+      if (!auth) return;
+
+      document.querySelectorAll('nav.hidden.md\\:flex a[href="join.html"]').forEach(el => {
+        const btn = document.createElement('button');
+        btn.textContent = 'Logout';
+        btn.className = 'nav-link text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors pb-0.5 bg-transparent border-none cursor-pointer';
+        btn.addEventListener('click', logout);
+        el.replaceWith(btn);
+      });
+
+      document.querySelectorAll('#mobileMenu a[href="join.html"]').forEach(el => {
+        const btn = document.createElement('button');
+        btn.textContent = 'Logout';
+        btn.className = 'text-sm font-medium tracking-wide uppercase text-neutral-400 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-left';
+        btn.addEventListener('click', logout);
+        el.replaceWith(btn);
+      });
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `show ${type}`;
+      setTimeout(() => { t.className = type; }, 3500);
+    }
 
     // ── Mobile menu ───────────────────────────────────────────────────────────
     const menuBtn = document.getElementById('menuBtn');
@@ -158,6 +311,16 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); observer.unobserve(e.target); } });
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Apply auth state ──────────────────────────────────────────────────────
+    updateNavForAuth();
+
+    // ── Show admin panel if user is admin/president ───────────────────────────
+    if (isAdmin()) {
+      const adminPanel = document.getElementById('admin-panel');
+      adminPanel.classList.remove('hidden');
+      adminPanel.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     const EVENT_ICONS = ['⚡', '🏆', '📖', '♔', '♟', '⚔️', '🎯', '👑'];
@@ -186,6 +349,13 @@
         ? `<span class="badge-ongoing text-xs font-semibold border rounded-full px-2.5 py-0.5">● Live Now</span>`
         : `<span class="badge-upcoming text-xs font-semibold border rounded-full px-2.5 py-0.5">Upcoming</span>`;
 
+      const deleteBtn = isAdmin()
+        ? `<button onclick="deleteEvent(${event.id})" class="inline-flex items-center gap-1.5 text-xs font-medium text-red-400 border border-red-900/40 rounded-lg px-3 py-2 hover:bg-red-500/10 transition-all bg-transparent cursor-pointer ml-2">
+             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+             Delete
+           </button>`
+        : '';
+
       return `
         <article class="group bg-neutral-900 border border-neutral-800 rounded-xl p-6 hover:border-neutral-600 transition-all duration-300 hover:-translate-y-1 reveal">
           <div class="flex items-start justify-between mb-4">
@@ -208,16 +378,43 @@
               <span>${formatTime(event.start_time)}</span>
             </div>
           </div>
-          <a href="${buildCalendarUrl(event)}" target="_blank" rel="noopener"
-             class="inline-flex items-center gap-2 text-sm font-medium text-white border border-neutral-700 rounded-lg px-4 py-2 hover:bg-white hover:text-black transition-all">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Add to Calendar
-          </a>
+          <div class="flex items-center flex-wrap gap-2">
+            <a href="${buildCalendarUrl(event)}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 text-sm font-medium text-white border border-neutral-700 rounded-lg px-4 py-2 hover:bg-white hover:text-black transition-all">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              Add to Calendar
+            </a>
+            ${deleteBtn}
+          </div>
         </article>`;
     }
 
     function escHtml(str) {
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Delete event (admin only) ─────────────────────────────────────────────
+    async function deleteEvent(eventId) {
+      if (!confirm('Delete this event? This cannot be undone.')) return;
+      const auth = getAuth();
+      if (!auth) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/events/${eventId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${auth.token}` },
+        });
+        if (res.ok) {
+          showToast('Event deleted.');
+          loadEvents(); // Refresh the grid
+        } else {
+          const data = await res.json();
+          showToast(data.detail || 'Failed to delete event.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error. Could not delete event.', 'error');
+        console.error('Delete event error:', err);
+      }
     }
 
     // ── Fetch & render events ─────────────────────────────────────────────────
@@ -239,6 +436,7 @@
           return;
         }
 
+        errorBox.classList.add('hidden');
         grid.innerHTML = events.map((ev, i) => renderEventCard(ev, i)).join('');
 
         // Re-run reveal observer on new cards
@@ -253,6 +451,112 @@
     }
 
     loadEvents();
+
+    // ── Admin: Add Event form handler ─────────────────────────────────────────
+    const addEventForm = document.getElementById('add-event-form');
+    if (addEventForm) {
+      addEventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const auth = getAuth();
+        if (!auth) return showToast('You must be logged in.', 'error');
+
+        const title = document.getElementById('event-title').value.trim();
+        const description = document.getElementById('event-desc').value.trim() || null;
+        const startTime = document.getElementById('event-start').value;
+        const isOngoing = document.getElementById('event-ongoing').checked;
+        const btn = document.getElementById('event-submit-btn');
+
+        if (!title || !startTime) {
+          showToast('Title and start time are required.', 'error');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Creating…';
+
+        try {
+          const res = await fetch(`${API_BASE}/events`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+              title,
+              description,
+              start_time: new Date(startTime).toISOString(),
+              is_ongoing: isOngoing,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            showToast(`Event "${data.title}" created!`);
+            addEventForm.reset();
+            loadEvents(); // Refresh the grid
+          } else {
+            const detail = data.detail || 'Failed to create event.';
+            showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+          }
+        } catch (err) {
+          showToast('Network error. Could not create event.', 'error');
+          console.error('Create event error:', err);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Create Event';
+        }
+      });
+    }
+
+    // ── Admin: Add Stream form handler ────────────────────────────────────────
+    const addStreamForm = document.getElementById('add-stream-form');
+    if (addStreamForm) {
+      addStreamForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const auth = getAuth();
+        if (!auth) return showToast('You must be logged in.', 'error');
+
+        const title = document.getElementById('stream-title').value.trim();
+        const youtubeUrl = document.getElementById('stream-url').value.trim();
+        const btn = document.getElementById('stream-submit-btn');
+
+        if (!title || !youtubeUrl) {
+          showToast('Title and YouTube URL are required.', 'error');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Adding…';
+
+        try {
+          const res = await fetch(`${API_BASE}/streams`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({ title, youtube_url: youtubeUrl }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            showToast(`Stream "${data.title}" added!`);
+            addStreamForm.reset();
+          } else {
+            const detail = data.detail || 'Failed to add stream.';
+            showToast(typeof detail === 'string' ? detail : JSON.stringify(detail), 'error');
+          }
+        } catch (err) {
+          showToast('Network error. Could not add stream.', 'error');
+          console.error('Create stream error:', err);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Add Stream';
+        }
+      });
+    }
   </script>
 </body>
 </html>
